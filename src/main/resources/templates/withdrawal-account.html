@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Transactional Balances</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+<div style="text-align: center;">
+    <h1 style="text-align: center;">Bank Balance and Dispensing System</h1>
+    <h2 style="text-align: center;">Transactional Account Balances</h2>
+</div>
+
+<form id="withdrawalForm" method="post" th:action="@{/withdrawal}">
+    <div style="text-align: center;">
+        <div th:if="${client != null}" id="locked-input-div">
+            <label for="clientIdRetrieved">Client Profile ID:</label>
+            <input type="number" id="clientIdRetrieved" name="clientId" th:value="${client.getId()}" required min="1"
+                   disabled style="background-color: #e0e0e0; color: #888;"/>
+            <button type="submit" disabled style="background-color: #e0e0e0; color: #888;">Load Client Profile</button>
+        </div>
+        <div th:if="${client == null}" id="unlocked-input-div">
+            <label for="clientId">Enter Client ID:</label>
+            <input type="number" id="clientId" name="clientId" th:value="${clientId}" required min="1"
+                   placeholder="Client ID"/>
+            <button type="submit">Load Client Profile</button>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Account Number</th>
+                <th>Account Type</th>
+                <th>Account Balance</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="account : ${accounts}"
+                th:data-account-number="${account.accountNumber}"
+                th:data-client-id="${client.getId()}"
+                th:data-account-type="${account.accountTypeDescription}"
+                onclick="submitWithdrawal(this)">
+                <td th:text="${account.accountNumber}"></td>
+                <td th:text="${account.accountTypeDescription}"></td>
+                <td th:text="${#numbers.formatDecimal(account.balance, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <a th:href="@{'/clientLanding?clientId=' + ${client.getId()}}">
+                <button type="button" style="width:400px; height:40px;">Back</button>
+            </a>
+            <a th:href="@{/endSession}">
+                <button type="button" style="width:400px; height:40px; background-color:#d32f2f; color:#fff;">Logout
+                </button>
+            </a>
+        </div>
+    </div>
+    <input type="hidden" name="accountType" id="accountTypeInput"/>
+    <input type="hidden" name="accountNumber" id="accountNumberInput"/>
+    <input type="hidden" name="clientId" id="clientIdInput"/>
+</form>
+<script>
+    function submitWithdrawal(row) {
+        var accountNumber = row.getAttribute('data-account-number');
+        var accountType = row.getAttribute('data-account-type');
+        var clientId = row.getAttribute('data-client-id');
+        document.getElementById('accountNumberInput').value = accountNumber;
+        document.getElementById('accountTypeInput').value = accountType;
+        document.getElementById('clientIdInput').value = clientId;
+        document.getElementById('withdrawalForm').submit();
+    }
+</script>
+</body>
+</html>

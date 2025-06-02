@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>ATM System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<h1>Bank Balance and Dispensing System</h1>
+
+<form method="get" th:action="@{/clientLanding}">
+    <label for="clientId">Enter Client ID:</label>
+    <input type="number" id="clientId" name="clientId" th:value="${clientId}" required min="1" placeholder="Client ID"/>
+    <button type="submit">Load Client Profile</button>
+</form>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Transactional Balances</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+<div style="text-align: center;">
+    <h1 style="text-align: center;">Bank Balance and Dispensing System</h1>
+    <h2 style="text-align: center;">Transactional Account Balances</h2>
+</div>
+
+<form method="get" th:action="@{/clientLanding}">
+    <div style="text-align: center;">
+        <div th:if="${client != null}" id="locked-input-div">
+            <label for="clientIdRetrieved">Client Profile ID:</label>
+            <input type="number" id="clientIdRetrieved" name="clientId" th:value="${client.getId()}" required min="1"
+                   disabled style="background-color: #e0e0e0; color: #888;"/>
+            <button type="submit" disabled style="background-color: #e0e0e0; color: #888;">Load Client Profile</button>
+        </div>
+        <div th:if="${client == null}" id="unlocked-input-div">
+            <label for="clientId">Enter Client ID:</label>
+            <input type="number" id="clientId" name="clientId" th:value="${clientId}" required min="1"
+                   placeholder="Client ID"/>
+            <button type="submit">Load Client Profile</button>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Account Number</th>
+                <th>Account Type</th>
+                <th>Account Balance</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="account : ${accounts}">
+                <td th:text="${account.accountNumber}"></td>
+                <td th:text="${account.accountTypeDescription}"></td>
+                <td th:text="${#numbers.formatDecimal(account.balance, 1, 'COMMA', 2, 'POINT')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div>
+            <a th:href="@{'/clientLanding?clientId=' + ${client.getId()}}">
+                <button type="button" style="width:400px; height:40px;">Back</button>
+            </a>
+            <a th:href="@{/endSession}">
+                <button type="button" style="width:400px; height:40px; background-color:#d32f2f; color:#fff;">Logout
+                </button>
+            </a>
+        </div>
+    </div>
+</form>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Client Page</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <script>
+        function getGreeting() {
+            const hour = new Date().getHours();
+            if (hour >= 5 && hour < 12) {
+                return "Good morning, ";
+            } else if (hour >= 12 && hour < 17) {
+                return "Good afternoon, ";
+            } else if (hour >= 17 && hour < 21) {
+                return "Good evening, ";
+            } else {
+                return "Hello, ";
+            }
+        }
+    </script>
+</head>
+
+<body>
+<h1>Bank Balance and Dispensing System</h1>
+
+<div>
+    <form method="get" th:action="@{/clientLanding}">
+        <div th:if="${client != null}" id="locked-input-div">
+            <label for="clientIdRetrieved">Client Profile ID:</label>
+            <input type="number" id="clientIdRetrieved" name="clientId" th:value="${client.getId()}" required min="1"
+                   disabled style="background-color: #e0e0e0; color: #888;"/>
+            <button type="submit" disabled style="background-color: #e0e0e0; color: #888;">Load Client Profile</button>
+        </div>
+        <div th:if="${client == null}" id="unlocked-input-div">
+            <label for="clientId">Enter Client ID:</label>
+            <input type="number" id="clientId" name="clientId" th:value="${clientId}" required min="1"
+                   placeholder="Client ID"/>
+            <button type="submit">Load Client Profile</button>
+        </div>
+
+        <div id="client-details-div" align="center">
+            <div th:if="${client != null}">
+                <h2>
+                    <span id="greeting"></span>
+                    <span th:text="${client.name} + ' ' + ${client.surname}"></span>
+                </h2>
+            </div>
+            <div th:if="${client == null}">
+                <p>No client profile loaded. Please enter a valid Client ID.</p>
+            </div>
+        </div>
+
+        <div id="action-buttons-div" align="center">
+            <a th:href="@{'/forexBalances?clientId=' + ${client.getId()}}">
+                <button type="button" style="width:400px; height:40px;">View Forex Balances</button></a>
+            <a th:href="@{'/transactionalBalances?clientId=' + ${client.getId()}}">
+                <button type="button" style="width:400px; height:40px;">View Transactional Balances</button></a>
+            <a th:href="@{'/withdrawalAccount?clientId=' + ${client.getId()}}">
+                <button type="button" style="width:400px; height:40px;">Withdraw</button></a>
+            <a th:href="@{/endSession}">
+                <button type="button" style="width:400px; height:40px; background-color:#d32f2f; color:#fff;" >Logout</button></a>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var greeting = getGreeting();
+        document.getElementById("greeting").textContent = greeting;
+    });
+</script>
+</body>
+</html>
