@@ -25,7 +25,7 @@ import static za.co.discovery.tao.muzvidziwa.domain.constant.Sources.BANK_CONTRO
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "ATM Controller", description = "Handles ATM operations including transactional balances, forex balances, and withdrawals")
+@Tag(name = "Bank Balance and Dispensing System", description = "Handles client operations including transactional balances, forex balances, and withdrawals")
 public class BankControllerImpl implements BankController {
     private final BankService bankService;
 
