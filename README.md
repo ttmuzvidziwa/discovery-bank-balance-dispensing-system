@@ -70,6 +70,7 @@ This project implements a bank ATM simulation backend system designed to:
 - Error handling and validation will be enhanced.
 - Security is out-of-scope for now, but would be implemented in a future iteration.
 - Test code coverage threshold will be increased to 80%, and a style enforcement through Checkstyle or similar.
+- Enhance application logging and add masking to hide personal client data in the logs.
 
 ## 👤 Author
 Tao Muzvidziwa – *Developer*
