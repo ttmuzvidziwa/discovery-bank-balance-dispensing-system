@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <div id="action-buttons-div" align="center">
+        <div th:if="${client != null}" id="action-buttons-div" align="center">
             <a th:href="@{'/forexBalances?clientId=' + ${client.getId()}}">
                 <button type="button" style="width:400px; height:40px;">View Forex Balances</button></a>
             <a th:href="@{'/transactionalBalances?clientId=' + ${client.getId()}}">
