@@ -23,29 +23,30 @@ This project implements a bank ATM simulation backend system designed to:
 - **Swagger/OpenAPI**
 - **JUnit 5 & Mockito** – Unit and integration testing.
 
-## 📑 API Endpoints
-| Endpoint                                   | Method | Description                                       |
-|---------------------------------------------|--------|---------------------------------------------------|
-| `/discovery-atm/queryTransactionalBalances`| GET    | Fetch transactional account balances.             |
-| `/discovery-atm/queryForexBalances`        | GET    | Fetch forex account balances.                     |
-| `/discovery-atm/withdraw`                  | POST   | Initiate withdrawal from specified ATM/account.   |
+## 🔎 REST APIs 
 
-## 🔎 Getting Started
+| Endpoint                                    | Method | RequestParams                                  | Description                                     |
+|---------------------------------------------|--------|------------------------------------------------|-------------------------------------------------|
+| `/discovery-atm/queryTransactionalBalances` | GET    | `clientId`                                     | Fetch transactional account balances.           |
+| `/discovery-atm/queryForexBalances`         | GET    | `clientId`                                     | Fetch forex account balances.                   |
+| `/discovery-atm/withdraw`                   | POST   | `clientId`, `atmId`, `accountNumber`, `amount` | Initiate withdrawal from specified ATM/account. |
+
+## ⚙️ Getting Started
 1. Clone the repo:
    ```bash
-   git clone <repo-url>
-   cd <project-dir>
+   git clone https://github.com/ttmuzvidziwa/discovery-bank-balance-dispensing-system.git
    ```
 2. Build & Run:
    ```bash
    ./mvnw clean spring-boot:run
    ```
 3. Access the API via Swagger UI:  
-   [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+   [http://localhost:8080/discovery-atm/swagger-ui/index.html](http://localhost:8080/discovery-atm/swagger-ui/index.html)
 
 ## 🗄️ H2 Database
-- Accessible at [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
-- Default JDBC URL: `jdbc:h2:mem:testdb`
+- Accessible at [http://localhost:8080/discovery-atm/h2-console](http://localhost:8080/discovery-atm/h2-console)
+- Default JDBC URL: `jdbc:h2:mem:bankbalancedispencingdb`
+- Database uses the typical H2 username & password combination
 
 ## 🧪 Testing
 - Run tests:
@@ -53,19 +54,22 @@ This project implements a bank ATM simulation backend system designed to:
    ./mvnw test
    ```
 - Contains unit & integration tests covering service and controller layers.
+- Code coverage require currently set at 60%.
 
 ## 💡 Usage Flow
-1. Start at `/index` with **client ID input**.
-2. Choose **transactional balances**, **forex balances**, or **withdraw**.
-3. View results or proceed with withdrawal, navigating with intuitive buttons.
+1. Start in your favourite browser and navigate to `http://localhost:8080/discovery-atm/` 
+2. Load a client profile using the **client ID input**.
+3. Choose **transactional balances**, **forex balances**, or **withdraw**.
+4. View results or proceed with withdrawal, navigating with intuitive buttons.
+5. Logout to load a new client profile. 
 
 ## 📝 TODO
-- [ ] Integrate **frontend templates (Thymeleaf)**.
 - [ ] Enhance **error handling and validation**.
-- [ ] Implement **security (optional)**.
+- [ ] Implement **security `(out-of-scope, for now)`**.
+- [ ] Increase test code coverage threshold to **80%**.
 
 ## 👤 Author
-Tao Muzvidziwa – *Developer & Technical Architect*
+Tao Muzvidziwa – *Developer*
 
 ---
 
