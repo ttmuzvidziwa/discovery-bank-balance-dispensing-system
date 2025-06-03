@@ -63,10 +63,13 @@ This project implements a bank ATM simulation backend system designed to:
 4. View results or proceed with withdrawal, navigating with intuitive buttons.
 5. Logout to load a new client profile. 
 
-## 📝 TODO
-- [ ] Enhance **error handling and validation**.
-- [ ] Implement **security `(out-of-scope, for now)`**.
-- [ ] Increase test code coverage threshold to **80%**.
+## 📝 Considerations
+- With more time, repository and service-level tests would be expanded to cover additional scenarios and edge cases.
+- Cron job definitions should be externalized to the application configuration for easier management.
+- Technical debt and outstanding TODOs would be addressed for improved maintainability, and performance in some instances.
+- Error handling and validation will be enhanced.
+- Security is out-of-scope for now, but would be implemented in a future iteration.
+- Test code coverage threshold will be increased to 80%, and a style enforcement through Checkstyle or similar.
 
 ## 👤 Author
 Tao Muzvidziwa – *Developer*

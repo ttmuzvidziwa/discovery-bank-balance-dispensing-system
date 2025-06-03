@@ -14,7 +14,6 @@ import static za.co.discovery.tao.muzvidziwa.domain.constant.Sources.CURRENCY_CO
 
 /**
  * This class represents the cache for currency conversion rates, stored in a map of <CurrencyCode, {@link ConversionRatesDto}>.
- * </p
  * */
 
 @Data
