@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestParam;
+import za.co.discovery.tao.muzvidziwa.domain.exception.BankServiceException;
 import za.co.discovery.tao.muzvidziwa.domain.model.response.AtmResponse;
 import za.co.discovery.tao.muzvidziwa.domain.model.response.views.View;
 
@@ -22,8 +23,8 @@ public interface BankController {
             description = "Retrieves a list of transactional accounts with available balances for a specific client.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved transactional account balances",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
-                            examples = @ExampleObject(value = """
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
+                            examples = {@ExampleObject(value = """
                                     {
                                       "client": {
                                         "id": 12345,
@@ -49,41 +50,48 @@ public interface BankController {
                                         "statusReason": "Success"
                                       }
                                     }
-                                    """))),
-            @ApiResponse(responseCode = "400", description = "No accounts to display or invalid client ID",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
+                                    """),
+                                    @ExampleObject(value = """
+                                                    {
+                                              "client": {
+                                                "id": 12345,
+                                                "title": "Mr",
+                                                "name": "Tao",
+                                                "surname": "Muzvidziwa"
+                                              },
+                                              "accounts": null,
+                                              "result": {
+                                                "success": false,
+                                                "statusCode": 400,
+                                                "statusReason": "No accounts to display"
+                                              }
+                                            }
+                                            """),
+                                    @ExampleObject(value = """
+                                                    {
+                                              "client": null,
+                                              "accounts": null,
+                                              "result": {
+                                                "success": false,
+                                                "statusCode": 500,
+                                                "statusReason": "Unspecified error occurred"
+                                              }
+                                            }
+                                            """)
+                            })),
+            @ApiResponse(responseCode = "400", description = "Bank service exception message",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BankServiceException.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "client": {
-                                        "id": 12345,
-                                        "title": "Mr",
-                                        "name": "Tao",
-                                        "surname": "Muzvidziwa"
-                                      },
-                                      "accounts": null,
-                                      "result": {
-                                        "success": false,
-                                        "statusCode": 400,
-                                        "statusReason": "No accounts to display"
-                                      }
-                                    }
+                                    "Bank service exception message"
                                     """))),
-            @ApiResponse(responseCode = "500", description = "Unexpected server error",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
+            @ApiResponse(responseCode = "500", description = "Unexpected server error message",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Exception.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "client": null,
-                                      "accounts": null,
-                                      "result": {
-                                        "success": false,
-                                        "statusCode": 500,
-                                        "statusReason": "Unspecified error occurred"
-                                      }
-                                    }
+                                    "Unspecified error occurred"
                                     """)))
     })
     ResponseEntity<Object> getTransactionalBalance(@Parameter(description = "Client ID", required = true)
-                                                          @RequestParam("clientId") final Integer clientId);
+                                                   @RequestParam("clientId") final Integer clientId);
 
     @JsonView(View.Currency.class)
     @Operation(summary = "Get forex balances",
@@ -91,7 +99,7 @@ public interface BankController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successfully retrieved forex balances",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
-                            examples = @ExampleObject(value = """
+                            examples = {@ExampleObject(value = """
                                     {
                                       "client": {
                                         "id": 12345,
@@ -117,41 +125,48 @@ public interface BankController {
                                         "statusReason": "Success"
                                       }
                                     }
-                                    """))),
-            @ApiResponse(responseCode = "400", description = "No accounts to display or invalid client ID",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
+                                    """),
+                                    @ExampleObject(value = """
+                                                    {
+                                              "client": {
+                                                "id": 12345,
+                                                "title": "Mr",
+                                                "name": "Tao",
+                                                "surname": "Muzvidziwa"
+                                              },
+                                              "accounts": null,
+                                              "result": {
+                                                "success": false,
+                                                "statusCode": 400,
+                                                "statusReason": "No accounts to display"
+                                              }
+                                            }
+                                            """),
+                                    @ExampleObject(value = """
+                                                    {
+                                              "client": null,
+                                              "accounts": null,
+                                              "result": {
+                                                "success": false,
+                                                "statusCode": 500,
+                                                "statusReason": "Unspecified error occurred"
+                                              }
+                                            }
+                                            """)
+                            })),
+            @ApiResponse(responseCode = "400", description = "Bank service exception message",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BankServiceException.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "client": {
-                                        "id": 12345,
-                                        "title": "Mr",
-                                        "name": "Tao",
-                                        "surname": "Muzvidziwa"
-                                      },
-                                      "accounts": null,
-                                      "result": {
-                                        "success": false,
-                                        "statusCode": 400,
-                                        "statusReason": "No accounts to display"
-                                      }
-                                    }
+                                    "No accounts to display"
                                     """))),
-            @ApiResponse(responseCode = "500", description = "Unexpected server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
+            @ApiResponse(responseCode = "500", description = "Runtime exception message",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Exception.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "client": null,
-                                      "accounts": null,
-                                      "result": {
-                                        "success": false,
-                                        "statusCode": 500,
-                                        "statusReason": "Unspecified error occurred"
-                                      }
-                                    }
+                                    "Springframework DAO exception"
                                     """)))
     })
     ResponseEntity<Object> getForexAccountBalance(@Parameter(description = "Client ID", required = true)
-                                                         @RequestParam("clientId") final Integer clientId);
+                                                  @RequestParam("clientId") final Integer clientId);
 
     @JsonView(View.Withdrawal.class)
     @Operation(summary = "Post a withdrawal",
@@ -162,7 +177,7 @@ public interface BankController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Withdrawal successful and denominations returned",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
-                            examples = @ExampleObject(value = """
+                            examples = {@ExampleObject(value = """
                                     {
                                       "client": {
                                         "id": 12345,
@@ -198,58 +213,122 @@ public interface BankController {
                                         }
                                       ]
                                     }
+                                    """),
+                                    @ExampleObject(value = """
+                                            {
+                                              "client": {
+                                                "id": 12345,
+                                                "title": "Mr",
+                                                "name": "Tao",
+                                                "surname": "Muzvidziwa"
+                                              },
+                                              "account": {},
+                                              "result": {
+                                                "success": true,
+                                                "statusCode": 400,
+                                                "statusReason": "No accounts to display"
+                                              },
+                                              "denomination": []
+                                            }
+                                            """),
+                                    @ExampleObject(value = """
+                                            {
+                                              "client": {
+                                                "id": 12345,
+                                                "title": "Mr",
+                                                "name": "Tao",
+                                                "surname": "Muzvidziwa"
+                                              },
+                                              "account": {
+                                                  "accountNumber": 1234567890,
+                                                  "typeCode": "CHQ",
+                                                  "accountTypeDescription": "Cheque Account",
+                                                  "currencyCode": "ZAR",
+                                                  "conversionRate": 1.000,
+                                                  "balance": 5000.00,
+                                                  "zarBalance": 5000.00,
+                                                  "accountLimit": 15000.00
+                                              },
+                                              "result": {
+                                                "success": true,
+                                                "statusCode": 400,
+                                                "statusReason": "ATM not registered or unfunded"
+                                              },
+                                              "denomination": []
+                                            }
+                                            """),
+                                    @ExampleObject(value = """
+                                            {
+                                              "client": {
+                                                "id": 12345,
+                                                "title": "Mr",
+                                                "name": "Tao",
+                                                "surname": "Muzvidziwa"
+                                              },
+                                              "account": {
+                                                  "accountNumber": 1234567890,
+                                                  "typeCode": "CHQ",
+                                                  "accountTypeDescription": "Cheque Account",
+                                                  "currencyCode": "ZAR",
+                                                  "conversionRate": 1.000,
+                                                  "balance": 5000.00,
+                                                  "zarBalance": 5000.00,
+                                                  "accountLimit": 15000.00
+                                              },
+                                              "result": {
+                                                "success": true,
+                                                "statusCode": 400,
+                                                "statusReason": "Amount not available. would you like to withdraw XXX"
+                                              },
+                                              "denomination": [}
+                                            }
+                                            """),
+                                    @ExampleObject(value = """
+                                            {
+                                              "client": {
+                                                "id": 12345,
+                                                "title": "Mr",
+                                                "name": "Tao",
+                                                "surname": "Muzvidziwa"
+                                              },
+                                              "account": {
+                                                  "accountNumber": 1234567890,
+                                                  "typeCode": "CHQ",
+                                                  "accountTypeDescription": "Cheque Account",
+                                                  "currencyCode": "ZAR",
+                                                  "conversionRate": 1.000,
+                                                  "balance": 5000.00,
+                                                  "zarBalance": 5000.00,
+                                                  "accountLimit": 15000.00
+                                              },
+                                              "result": {
+                                                "success": true,
+                                                "statusCode": 400,
+                                                "statusReason": "Insufficient funds"
+                                              },
+                                              "denomination": []
+                                            }
+                                            """)
+                            })
+            ),
+            @ApiResponse(responseCode = "400", description = "Bank service exception message",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BankServiceException.class),
+                            examples = @ExampleObject(value = """
+                                    Withdrawal could not be completed
                                     """))
             ),
-            @ApiResponse(responseCode = "400", description = "Invalid input, insufficient funds, ATM not found, or allocation issues",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
+            @ApiResponse(responseCode = "500", description = "Runtime exception mess",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Exception.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "client": {
-                                        "id": 12345,
-                                        "title": "Mr",
-                                        "name": "Tao",
-                                        "surname": "Muzvidziwa"
-                                      },
-                                      "account": {
-                                          "accountNumber": 1234567890,
-                                          "typeCode": "CHQ",
-                                          "accountTypeDescription": "Cheque Account",
-                                          "currencyCode": "ZAR",
-                                          "conversionRate": 1.000,
-                                          "balance": 5000.00,
-                                          "zarBalance": 5000.00,
-                                          "accountLimit": 15000.00
-                                      },
-                                      "result": {
-                                        "success": false,
-                                        "statusCode": 400,
-                                        "statusReason": "Insufficient funds or invalid input"
-                                      },
-                                      "denomination": null
-                                    }
-                                    """))
-            ),
-            @ApiResponse(responseCode = "500", description = "Unexpected server error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AtmResponse.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "client": null,
-                                      "account": null,
-                                      "result": {
-                                        "success": false,
-                                        "statusCode": 500,
-                                        "statusReason": "Unspecified error occurred"
-                                      },
-                                      "denomination": null
-                                    }
+                                    Unspecified error occurred
                                     """)))
     })
     ResponseEntity<Object> postWithdrawal(@Parameter(description = "Client ID", required = true)
-                                                 @RequestParam("clientId") final Integer clientId,
-                                                 @Parameter(description = "ATM ID", required = true)
-                                                 @RequestParam("atmId") final Integer atmId,
-                                                 @Parameter(description = "Client account number", required = true)
-                                                 @RequestParam("accountNumber") final String accountNumber,
-                                                 @Parameter(description = "Required withdrawal amount", required = true)
-                                                 @RequestParam("requiredAmount") final BigDecimal requiredAmount);
+                                          @RequestParam("clientId") final Integer clientId,
+                                          @Parameter(description = "ATM ID", required = true)
+                                          @RequestParam("atmId") final Integer atmId,
+                                          @Parameter(description = "Client account number", required = true)
+                                          @RequestParam("accountNumber") final String accountNumber,
+                                          @Parameter(description = "Required withdrawal amount", required = true)
+                                          @RequestParam("requiredAmount") final BigDecimal requiredAmount);
 }

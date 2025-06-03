@@ -54,7 +54,7 @@ This project implements a bank ATM simulation backend system designed to:
    ./mvnw test
    ```
 - Contains unit & integration tests covering service and controller layers.
-- Code coverage require currently set at 60%.
+- Code coverage requirement currently set at 60%.
 
 ## 💡 Usage Flow
 1. Start in your favourite browser and navigate to `http://localhost:8080/discovery-atm/` 
