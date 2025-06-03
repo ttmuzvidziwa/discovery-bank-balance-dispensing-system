@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import za.co.discovery.tao.muzvidziwa.domain.model.entity.Atm;
 import za.co.discovery.tao.muzvidziwa.domain.model.response.AtmResponse;
+import za.co.discovery.tao.muzvidziwa.domain.model.response.dto.ClientDto;
+import za.co.discovery.tao.muzvidziwa.domain.model.response.dto.ResultDto;
+import za.co.discovery.tao.muzvidziwa.domain.util.GeneralUtils;
 import za.co.discovery.tao.muzvidziwa.repository.AtmRepository;
 
 import java.util.List;
@@ -32,7 +35,15 @@ public class AtmWebController {
                     model.addAttribute("client", response.getClient());
                     model.addAttribute("accounts", response.getAccounts());
                 } else {
-                    model.addAttribute("accounts", null);
+                    final ClientDto clientDto = new ClientDto();
+                    clientDto.setId(GeneralUtils.parseIntToLong(clientId));
+
+                    final ResultDto resultDto = new ResultDto();
+                    resultDto.setStatusReason("No accounts to display");
+
+                    model.addAttribute("client", clientDto);
+                    model.addAttribute("accounts", "no-data");
+                    model.addAttribute("result", resultDto);
                 }
             } catch (Exception e) {
                 model.addAttribute("accounts", null);
@@ -51,7 +62,15 @@ public class AtmWebController {
                     model.addAttribute("client", response.getClient());
                     model.addAttribute("accounts", response.getAccounts());
                 } else {
-                    model.addAttribute("accounts", null);
+                    final ClientDto clientDto = new ClientDto();
+                    clientDto.setId(GeneralUtils.parseIntToLong(clientId));
+
+                    final ResultDto resultDto = new ResultDto();
+                    resultDto.setStatusReason("No accounts to display");
+
+                    model.addAttribute("client", clientDto);
+                    model.addAttribute("accounts", "no-data");
+                    model.addAttribute("result", resultDto);
                 }
             } catch (Exception e) {
                 model.addAttribute("accounts", null);
