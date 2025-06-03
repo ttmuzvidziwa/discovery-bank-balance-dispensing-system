@@ -224,7 +224,7 @@ public interface BankController {
                                               },
                                               "account": {},
                                               "result": {
-                                                "success": true,
+                                                "success": false,
                                                 "statusCode": 400,
                                                 "statusReason": "No accounts to display"
                                               },
@@ -250,7 +250,7 @@ public interface BankController {
                                                   "accountLimit": 15000.00
                                               },
                                               "result": {
-                                                "success": true,
+                                                "success": false,
                                                 "statusCode": 400,
                                                 "statusReason": "ATM not registered or unfunded"
                                               },
@@ -276,7 +276,7 @@ public interface BankController {
                                                   "accountLimit": 15000.00
                                               },
                                               "result": {
-                                                "success": true,
+                                                "success": false,
                                                 "statusCode": 400,
                                                 "statusReason": "Amount not available. would you like to withdraw XXX"
                                               },
@@ -302,7 +302,7 @@ public interface BankController {
                                                   "accountLimit": 15000.00
                                               },
                                               "result": {
-                                                "success": true,
+                                                "success": false,
                                                 "statusCode": 400,
                                                 "statusReason": "Insufficient funds"
                                               },

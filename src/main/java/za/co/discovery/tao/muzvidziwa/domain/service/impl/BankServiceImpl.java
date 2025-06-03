@@ -488,7 +488,7 @@ public class BankServiceImpl implements BankService {
 
     private ResultDto prepareResultDto(final boolean success, final StatusCodeReason codeReason) {
         ResultDto resultDto = new ResultDto();
-        resultDto.setSuccess(true);
+        resultDto.setSuccess(success);
         resultDto.setStatusCode(codeReason.statusCode);
         resultDto.setStatusReason(codeReason.statusReason);
 
