@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +32,8 @@ public class ScheduledService {
     private final JdbcTemplate jdbcTemplate;
     private final ResourceLoader resourceLoader;
 
-
-    @Scheduled(cron = "0 0/30 * * * ?")
+    @Scheduled(cron = "0 0 * * * ?")
+    // Pull currency conversion rate on start-up, then every hour.
     @Scheduled(initialDelay = 1000)
     public void findAndUpdateCurrencyConversionRates() {
         final String traceId = GeneralUtils.generateUniqueId();
@@ -83,7 +85,9 @@ public class ScheduledService {
 
             Path reportDir = Path.of("src/main/resources/report");
             Files.createDirectories(reportDir);
-            Path tempFile = reportDir.resolve("transactional_account_balance_report.txt");
+            Path tempFile = reportDir.resolve("transactional_account_balance_report_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+                    + ".txt");
             Files.writeString(tempFile, sb.toString(), StandardCharsets.UTF_8);
             LoggerUtils.logInfo(GeneralUtils.generateUniqueId(), SCHEDULED_SYSTEM_TASK, "Report written to: " + tempFile.toAbsolutePath());
         } catch (Exception e) {
@@ -93,7 +97,6 @@ public class ScheduledService {
     }
 
     @Scheduled(cron = "0 0 0 L * ?")
-    @Scheduled(initialDelay = 5000)
     public void runClientAggregateFinancialPositionReportingScript() {
         try {
             Resource resource = resourceLoader.getResource("classpath:/sql/client-aggregate-financial-position-report.sql");
@@ -118,7 +121,9 @@ public class ScheduledService {
 
             Path reportDir = Path.of("src/main/resources/report");
             Files.createDirectories(reportDir);
-            Path tempFile = reportDir.resolve("client_aggregate_financial_position_report.txt");
+            Path tempFile = reportDir.resolve("client_aggregate_financial_position_report_"
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"))
+                    + ".txt");
             Files.writeString(tempFile, sb.toString(), StandardCharsets.UTF_8);
             LoggerUtils.logInfo(GeneralUtils.generateUniqueId(), SCHEDULED_SYSTEM_TASK, "Report written to: " + tempFile.toAbsolutePath());
         } catch (Exception e) {

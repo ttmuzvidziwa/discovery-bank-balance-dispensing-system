@@ -12,7 +12,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Bank Balance and Dispensing System API")
-                        .version("1.0")
+                        .version("1.0.1")
                         .description("""
                                 This application is a Spring Boot-based REST API for Discovery Bank's ATM system. It allows ATM terminals to:
                                 
