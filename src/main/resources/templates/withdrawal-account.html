@@ -34,8 +34,9 @@
                 <th>Account Balance</th>
             </tr>
             </thead>
+            <div style="align-content: center; padding: 10px;">Please select an account to withdraw from</div>
             <tbody>
-            <tr th:each="account : ${accounts}"
+            <tr th:if="${accounts != null}" th:each="account : ${accounts}"
                 th:data-account-number="${account.accountNumber}"
                 th:data-client-id="${client.getId()}"
                 th:data-account-type="${account.accountTypeDescription}"

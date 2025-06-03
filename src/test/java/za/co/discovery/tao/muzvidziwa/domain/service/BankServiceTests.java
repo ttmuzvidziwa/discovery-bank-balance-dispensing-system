@@ -34,7 +34,9 @@ import za.co.discovery.tao.muzvidziwa.repository.AtmRepository;
 import za.co.discovery.tao.muzvidziwa.repository.ClientAccountRepository;
 import za.co.discovery.tao.muzvidziwa.repository.ClientRepository;
 import za.co.discovery.tao.muzvidziwa.repository.CreditCardLimitRepository;
+import za.co.discovery.tao.muzvidziwa.repository.CreditCardLimitRepositoryTests;
 import za.co.discovery.tao.muzvidziwa.repository.CurrencyConversionRepository;
+import za.co.discovery.tao.muzvidziwa.repository.CurrencyConversionRepositoryTests;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -584,10 +586,10 @@ public class BankServiceTests {
      * Should return AtmResponse with client details, account details, denominations, and success result status.</p>
      */
     @DisplayName("""
-            Test 'WITHDRAWAL TRANSACTION': given valid clientId, atmId, amount, and accountNumber should return AtmResponse success result status
+            Test 'WITHDRAWAL TRANSACTION': given valid clientId, atmId, amount, and cheque accountNumber should return AtmResponse success result status
             """)
     @Test
-    public void postWithdrawalTransaction_givenValidClientId_andValidAccountNumber_andValidAmount_andValidAtm_shouldReturnSuccessWithdrawalResult() throws Exception {
+    public void postWithdrawalTransaction_givenValidClientId_andValidCHQAccountNumber_andValidAmount_andValidAtm_shouldReturnSuccessWithdrawalResult() throws Exception {
         // Prepare the expected AtmResponse object
         final AtmResponse expectedAtmResponse = new AtmResponse();
         expectedAtmResponse.setClient(createClientDto());
@@ -608,6 +610,153 @@ public class BankServiceTests {
 
         final Client client = createStandardClient();
         final ClientAccount clientAccount = createStandardZarClientAccount(client);
+
+        final List<AtmAllocation> atmAllocationList = createStandardAtmAllocation();
+
+        final AtmAllocationUpdateDto atm10AllocationUpdateDto = new AtmAllocationUpdateDto(1L, 10);
+        final AtmAllocationUpdateDto atm50AllocationUpdateDto = new AtmAllocationUpdateDto(3L, 4);
+        final AtmAllocationUpdateDto atm100AllocationUpdateDto = new AtmAllocationUpdateDto(4L, 20);
+        final AtmAllocationUpdateDto atm200AllocationUpdateDto = new AtmAllocationUpdateDto(5L, 9);
+
+        final List<AtmAllocationUpdateDto> atmAllocationUpdateDtoList = List.of(
+                atm10AllocationUpdateDto,
+                atm50AllocationUpdateDto,
+                atm100AllocationUpdateDto,
+                atm200AllocationUpdateDto
+        );
+
+        // Mock the repository methods
+        Mockito.when(atmRepository.atmExistsByAtmId(3)).thenReturn(true);
+        Mockito.when(clientRepository.findByClientId(1)).thenReturn(Optional.of(client));
+        Mockito.when(clientAccountRepository.findClientAccountByClientIdAndAccountNumber(1, "4")).thenReturn(Optional.of(clientAccount));
+        Mockito.when(atmAllocationRepository.findAtmAllocationByAtmId(3)).thenReturn(Optional.of(atmAllocationList));
+        Mockito.doNothing().when(atmAllocationRepository).updateDenominationCounts(3, atmAllocationUpdateDtoList);
+        Mockito.doNothing().when(clientAccountRepository).updateClientAccountByAccountNumber(1, "4", BigDecimal.valueOf(10250.000));
+
+        // Perform SUT
+        final AtmResponse actualAtmResponse = bankService.postWithdrawal(TRACE_ID, 1, 3, "4", BigDecimal.valueOf(250.000));
+
+        // Verify results
+        Assertions.assertEquals(expectedAtmResponse, actualAtmResponse);
+    }
+
+    /**
+     * <p>Test 'WITHDRAWAL TRANSACTION':</p>
+     * <p>Given valid client ID, account number, amount, and ATM ID, and insufficient funds in the account,
+     * Should return {@link} AtmResponse with client details, account details, denominations, and insufficient fund result status.</p>
+     */
+    @DisplayName("""
+            Test 'WITHDRAWAL TRANSACTION': given valid clientId, atmId, over balance amount, and cheque accountNumber should return AtmResponse insufficient funds status
+            """)
+    @Test
+    public void postWithdrawalTransaction_givenValidData_butWithdrawalAmountGreaterThanAccBalance_shouldReturnInsufficientFundsResult() throws Exception {
+        // Prepare the expected AtmResponse object
+        final AtmResponse expectedAtmResponse = new AtmResponse();
+        expectedAtmResponse.setClient(createClientDto());
+        expectedAtmResponse.setAccount(createChequeAccountDto(4L, BigDecimal.valueOf(10250.000)));
+
+        expectedAtmResponse.setResult(createWithdrawalErrorResultDto("Insufficient funds"));
+
+        final Client client = createStandardClient();
+        final ClientAccount clientAccount = createStandardZarClientAccount(client);
+
+        // Mock the repository methods
+        Mockito.when(atmRepository.atmExistsByAtmId(3)).thenReturn(true);
+        Mockito.when(clientRepository.findByClientId(1)).thenReturn(Optional.of(client));
+        Mockito.when(clientAccountRepository.findClientAccountByClientIdAndAccountNumber(1, "4")).thenReturn(Optional.of(clientAccount));
+//        Mockito.when(atmAllocationRepository.findAtmAllocationByAtmId(3)).thenReturn(Optional.of(atmAllocationList));
+//        Mockito.doNothing().when(atmAllocationRepository).updateDenominationCounts(3, atmAllocationUpdateDtoList);
+//        Mockito.doNothing().when(clientAccountRepository).updateClientAccountByAccountNumber(1, "4", BigDecimal.valueOf(10250.000));
+
+        // Perform SUT
+        final AtmResponse actualAtmResponse = bankService.postWithdrawal(TRACE_ID, 1, 3, "4", BigDecimal.valueOf(27000.000));
+
+        // Verify results
+        Assertions.assertEquals(expectedAtmResponse, actualAtmResponse);
+    }
+
+    @DisplayName("""
+            Test 'WITHDRAWAL TRANSACTION': given valid clientId, atmId, amount, and credit card accountNumber should return AtmResponse success result status
+            """)
+    @Test
+    public void postWithdrawalTransaction_givenValidClientId_andValidCCRDAccountNumber_andValidAmount_andValidAtm_shouldReturnSuccessWithdrawalResult() throws Exception {
+        // Prepare the expected AtmResponse object
+        final BigDecimal ccrdLimitBalance = BigDecimal.valueOf(25000);
+        final AtmResponse expectedAtmResponse = new AtmResponse();
+        expectedAtmResponse.setClient(createClientDto());
+        expectedAtmResponse.setAccount(createCCRDAccountDto(4L, BigDecimal.valueOf(10000.000), ccrdLimitBalance));
+
+        final DenominationDto denomination200Dto = new DenominationDto();
+        denomination200Dto.setDenominationId(5L);
+        denomination200Dto.setDenominationValue(BigDecimal.valueOf(200.000));
+        denomination200Dto.setCount(1);
+
+        final DenominationDto denomination50Dto = new DenominationDto();
+        denomination50Dto.setDenominationId(3L);
+        denomination50Dto.setDenominationValue(BigDecimal.valueOf(50.000));
+        denomination50Dto.setCount(1);
+
+        expectedAtmResponse.setDenomination(List.of(denomination200Dto, denomination50Dto));
+        expectedAtmResponse.setResult(createWithdrawalResultDto());
+
+        final Client client = createStandardClient();
+        final ClientAccount clientAccount = createStandardZarCCRDClientAccount(client);
+
+        final List<AtmAllocation> atmAllocationList = createStandardAtmAllocation();
+
+        final AtmAllocationUpdateDto atm10AllocationUpdateDto = new AtmAllocationUpdateDto(1L, 10);
+        final AtmAllocationUpdateDto atm50AllocationUpdateDto = new AtmAllocationUpdateDto(3L, 4);
+        final AtmAllocationUpdateDto atm100AllocationUpdateDto = new AtmAllocationUpdateDto(4L, 20);
+        final AtmAllocationUpdateDto atm200AllocationUpdateDto = new AtmAllocationUpdateDto(5L, 9);
+
+        final List<AtmAllocationUpdateDto> atmAllocationUpdateDtoList = List.of(
+                atm10AllocationUpdateDto,
+                atm50AllocationUpdateDto,
+                atm100AllocationUpdateDto,
+                atm200AllocationUpdateDto
+        );
+
+        // Mock the repository methods
+        Mockito.when(atmRepository.atmExistsByAtmId(3)).thenReturn(true);
+        Mockito.when(clientRepository.findByClientId(1)).thenReturn(Optional.of(client));
+        Mockito.when(clientAccountRepository.findClientAccountByClientIdAndAccountNumber(1, "4")).thenReturn(Optional.of(clientAccount));
+        Mockito.when(atmAllocationRepository.findAtmAllocationByAtmId(3)).thenReturn(Optional.of(atmAllocationList));
+        Mockito.when(creditCardLimitRepository.findCreditCardLimitByClientAccountNumber(clientAccount.getClientAccountNumber())).thenReturn(Optional.of(ccrdLimitBalance.setScale(3, RoundingMode.HALF_UP)));
+        Mockito.doNothing().when(atmAllocationRepository).updateDenominationCounts(3, atmAllocationUpdateDtoList);
+        Mockito.doNothing().when(clientAccountRepository).updateClientAccountByAccountNumber(1, "4", BigDecimal.valueOf(10250.000));
+
+        // Perform SUT
+        final AtmResponse actualAtmResponse = bankService.postWithdrawal(TRACE_ID, 1, 3, "4", BigDecimal.valueOf(250.000));
+
+        // Verify results
+        Assertions.assertEquals(expectedAtmResponse, actualAtmResponse);
+    }
+
+    @DisplayName("""
+            Test 'WITHDRAWAL TRANSACTION': given valid clientId, atmId, amount, and credit card accountNumber should return AtmResponse success result status
+            """)
+    @Test
+    public void postWithdrawalTransaction_givenValidClientId_andValidSVGSAccountNumber_andValidAmount_andValidAtm_shouldReturnSuccessWithdrawalResult() throws Exception {
+        // Prepare the expected AtmResponse object
+        final AtmResponse expectedAtmResponse = new AtmResponse();
+        expectedAtmResponse.setClient(createClientDto());
+        expectedAtmResponse.setAccount(createSavingsAccountDto(4L, BigDecimal.valueOf(10000.000)));
+
+        final DenominationDto denomination200Dto = new DenominationDto();
+        denomination200Dto.setDenominationId(5L);
+        denomination200Dto.setDenominationValue(BigDecimal.valueOf(200.000));
+        denomination200Dto.setCount(1);
+
+        final DenominationDto denomination50Dto = new DenominationDto();
+        denomination50Dto.setDenominationId(3L);
+        denomination50Dto.setDenominationValue(BigDecimal.valueOf(50.000));
+        denomination50Dto.setCount(1);
+
+        expectedAtmResponse.setDenomination(List.of(denomination200Dto, denomination50Dto));
+        expectedAtmResponse.setResult(createWithdrawalResultDto());
+
+        final Client client = createStandardClient();
+        final ClientAccount clientAccount = createStandardZarSavingsClientAccount(client);
 
         final List<AtmAllocation> atmAllocationList = createStandardAtmAllocation();
 
@@ -710,6 +859,24 @@ public class BankServiceTests {
 
         // Perform SUT
         final AtmResponse actualAtmResponse = bankService.postWithdrawal(TRACE_ID, 1, 3, "4", BigDecimal.valueOf(250.000));
+
+        // Verify results
+        Assertions.assertEquals(expectedAtmResponse, actualAtmResponse);
+    }
+
+    @DisplayName("""
+            Test 'WITHDRAWAL TRANSACTION': given invalid clientId should return AtmResponse invalid client identifier status
+            """)
+    @Test
+    public void postWithdrawalTransaction_givenInvalidClientId_shouldReturnInvalidClientIdResult() throws Exception {
+        // Prepare the expected AtmResponse object
+        final AtmResponse expectedAtmResponse = new AtmResponse();
+        expectedAtmResponse.setClient(new ClientDto());
+        expectedAtmResponse.setAccount(new AccountDto());
+
+        expectedAtmResponse.setResult(createWithdrawalErrorResultDto("Invalid client identifier (ID) provided"));
+
+        final AtmResponse actualAtmResponse = bankService.postWithdrawal(TRACE_ID, -1, 3, "4", BigDecimal.valueOf(27000.000));
 
         // Verify results
         Assertions.assertEquals(expectedAtmResponse, actualAtmResponse);
@@ -1277,6 +1444,32 @@ public class BankServiceTests {
         return accountDto;
     }
 
+    private AccountDto createCCRDAccountDto(final Long accountNumber, final BigDecimal balance, final BigDecimal ccrdLimitBalance) {
+        final AccountDto accountDto = new AccountDto();
+        accountDto.setAccountNumber(accountNumber);
+        accountDto.setTypeCode("CCRD");
+        accountDto.setAccountTypeDescription("Credit Card Account");
+        accountDto.setCurrencyCode("ZAR");
+        accountDto.setConversionRate(BigDecimal.valueOf(1.000).setScale(3, RoundingMode.HALF_UP));
+        accountDto.setBalance(balance.setScale(3, RoundingMode.HALF_UP));
+        accountDto.setZarBalance(accountDto.getBalance().subtract(ccrdLimitBalance).setScale(3, RoundingMode.HALF_UP));
+        accountDto.setAccountLimit(ccrdLimitBalance.setScale(3, RoundingMode.HALF_UP));
+        return accountDto;
+    }
+
+    private AccountDto createSVGSAccountDto(final Long accountNumber, final BigDecimal balance) {
+        final AccountDto accountDto = new AccountDto();
+        accountDto.setAccountNumber(accountNumber);
+        accountDto.setTypeCode("SVGS");
+        accountDto.setAccountTypeDescription("Savings Account");
+        accountDto.setCurrencyCode("ZAR");
+        accountDto.setConversionRate(BigDecimal.valueOf(1.000).setScale(3, RoundingMode.HALF_UP));
+        accountDto.setBalance(balance.setScale(3, RoundingMode.HALF_UP));
+        accountDto.setZarBalance(accountDto.getBalance().setScale(3, RoundingMode.HALF_UP));
+        accountDto.setAccountLimit(accountDto.getBalance().add(BigDecimal.valueOf(10000.000).setScale(3, RoundingMode.HALF_UP)));
+        return accountDto;
+    }
+
     private AccountDto createSavingsAccountDto(final Long accountNumber, final BigDecimal balance) {
         final AccountDto accountDto = new AccountDto();
         accountDto.setAccountNumber(accountNumber);
@@ -1389,7 +1582,7 @@ public class BankServiceTests {
 
     private ResultDto createNoAccountsToDisplayResultDto() {
         final ResultDto resultDto = new ResultDto();
-        resultDto.setSuccess(true);
+        resultDto.setSuccess(false);
         resultDto.setStatusCode(400);
         resultDto.setStatusReason("No accounts to display");
         return resultDto;
@@ -1552,6 +1745,48 @@ public class BankServiceTests {
         final AccountType chequeAccountType = new AccountType();
         chequeAccountType.setAccountTypeCode("CHQ");
         chequeAccountType.setDescription("Cheque Account");
+        chequeAccountType.setTransactional(true);
+
+        final Currency currency = new Currency();
+        currency.setCurrencyCode("ZAR");
+        currency.setDecimalPlaces(2);
+        currency.setDescription("South African rand");
+
+        final ClientAccount clientAccount = new ClientAccount();
+        clientAccount.setClientAccountNumber("4");
+        clientAccount.setClient(client);
+        clientAccount.setAccountType(chequeAccountType);
+        clientAccount.setCurrency(currency);
+        clientAccount.setDisplayBalance(BigDecimal.valueOf(10250));
+
+        return clientAccount;
+    }
+
+    private ClientAccount createStandardZarCCRDClientAccount(final Client client) {
+        final AccountType chequeAccountType = new AccountType();
+        chequeAccountType.setAccountTypeCode("CCRD");
+        chequeAccountType.setDescription("Credit Card Account");
+        chequeAccountType.setTransactional(true);
+
+        final Currency currency = new Currency();
+        currency.setCurrencyCode("ZAR");
+        currency.setDecimalPlaces(2);
+        currency.setDescription("South African rand");
+
+        final ClientAccount clientAccount = new ClientAccount();
+        clientAccount.setClientAccountNumber("4");
+        clientAccount.setClient(client);
+        clientAccount.setAccountType(chequeAccountType);
+        clientAccount.setCurrency(currency);
+        clientAccount.setDisplayBalance(BigDecimal.valueOf(10250));
+
+        return clientAccount;
+    }
+
+    private ClientAccount createStandardZarSavingsClientAccount(final Client client) {
+        final AccountType chequeAccountType = new AccountType();
+        chequeAccountType.setAccountTypeCode("SVGS");
+        chequeAccountType.setDescription("Savings Account");
         chequeAccountType.setTransactional(true);
 
         final Currency currency = new Currency();

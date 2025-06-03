@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>za.co.discovery.tao.muzvidziwa</groupId>
 	<artifactId>Assessment</artifactId>
-	<version>1.0.1</version>
+	<version>1.1.0</version>
 	<name>Snr Developer Assessment Tao Muzvidziwa</name>
 	<description>Senior developer back end assessment attempted by Taongashe Muzvidziwa. The goal of the Bank Balance and Dispensing System is to calculate and display the financial position to a client on an ATM screen.  In addition, a client must also be able to make a request for a cash withdrawal.</description>
 	<url/>
